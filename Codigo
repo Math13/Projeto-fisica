@@ -1,0 +1,159 @@
+package javaapplication13;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.swing.JFrame;
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
+
+public class Colisao extends JFrame{
+    @SuppressWarnings("FieldMayBeFinal")
+    private double massa = 60;
+    @SuppressWarnings("FieldMayBeFinal")
+    private double diametro = 60;
+    private double velocidadex = 3.5;
+    private double velocidadey = 2;
+    private double posicaox=200;
+    private double posicaoy=350;
+    private double velocidade;
+    private double k;
+    @SuppressWarnings("FieldMayBeFinal")
+    private double massarosa = 90;
+    @SuppressWarnings("FieldMayBeFinal")
+    private double diametrorosa = 90;
+    private double velocidadexrosa = 2;
+    private double velocidadeyrosa = 4;
+    private double posicaoxrosa = 450;
+    private double posicaoyrosa = 200;
+    private double velocidaderosa;
+    private double krosa;
+    @SuppressWarnings("FieldMayBeFinal")
+    private int largura=600;
+    @SuppressWarnings("FieldMayBeFinal")
+    private int altura=600;
+    private double distanciax;
+    private double distanciay;
+    BufferedImage area;
+    
+    public void desenhar(){
+        Graphics g = getGraphics();
+        Graphics g1 = area.getGraphics();
+        
+        g1.setColor(Color.red);
+        g1.fillOval((int) posicaox, (int) posicaoy, (int)diametro, (int)diametro);
+        
+        g.drawImage(area, 200, 100, this);
+    }
+    public void desenharrosa(){
+        Graphics g = getGraphics();
+        Graphics g2 = area.getGraphics();
+        
+        g2.setColor(Color.pink);
+        g2.fillOval((int)posicaoxrosa, (int)posicaoyrosa,(int) diametrorosa,(int) diametrorosa);
+        
+        g.drawImage(area, 200, 100, this);
+    }
+    //limpa a tela
+    public void limpar(){
+        Graphics g = getGraphics();
+        Graphics graphics = area.getGraphics();
+        
+        graphics.setColor(Color.white);
+        graphics.fillRect(0, 0, largura, altura);
+        g.drawImage(area, 100, 100, this);
+    }
+    public void checarColisao(){
+        distanciax = posicaox - posicaoxrosa;
+        distanciay = posicaoy - posicaoyrosa;
+        double somadistancia = Math.pow(distanciax,2)+Math.pow(distanciay,2);
+        double somadiametro = (diametro/2)+(diametrorosa/2);
+        double quadradosomadiametro = Math.pow(somadiametro,2);
+        if(somadistancia<=quadradosomadiametro){
+            velocidadex = velocidadex - velocidadexrosa;
+            velocidadey = velocidadey - velocidadeyrosa;
+            velocidadexrosa = velocidadexrosa - velocidadex;
+            velocidadeyrosa = velocidadeyrosa - velocidadey;
+            velocidade= velocidadex+velocidadey;
+            velocidaderosa = velocidadexrosa+velocidadeyrosa;
+            k();
+        }
+    }
+    public void atualizar(){
+        if(posicaox<(largura-diametro)){
+            posicaox+=velocidadex;
+        }else if(posicaox<=0){
+            posicaox-=-velocidadex;
+        }
+        else{
+            posicaox-=velocidadex+(diametro*10);
+        }
+        if(posicaoy<(altura-diametro)){
+            posicaoy+=velocidadey;
+        }else if(posicaoy<=0){
+            posicaoy-=-velocidadey;
+        }
+        else{
+            posicaoy-=velocidadey+(diametro*10);
+        }
+        if(posicaoxrosa<(largura-diametrorosa)){
+           posicaoxrosa-=velocidadexrosa; 
+        }else if((posicaoxrosa-diametrorosa)<0){
+            posicaoxrosa+=velocidadexrosa; 
+        }else if(posicaoxrosa<=0){
+            posicaoxrosa+=-velocidadexrosa; 
+        }
+        else{
+            posicaoxrosa+=velocidadexrosa+(diametrorosa*8);
+        }
+        if(posicaoyrosa<(altura-diametrorosa)){
+            posicaoyrosa+=velocidadeyrosa;
+        }else if(posicaoyrosa>0){
+            posicaoyrosa+=velocidadeyrosa+(diametrorosa*8);
+        }else if(posicaoyrosa<=0){
+            posicaoyrosa+=-velocidadeyrosa;
+        }
+        checarColisao();
+        k();
+    }
+    public void k(){
+        velocidade= velocidadex+velocidadey;
+        velocidaderosa = velocidadexrosa+velocidadeyrosa;
+        k=(massa*(Math.pow((velocidade), 2)))/2;
+        krosa =(massarosa*(Math.pow((velocidaderosa), 2)))/2;
+        Graphics g = getGraphics();
+        Graphics graphics = area.getGraphics();
+        graphics.setColor(Color.black);
+        graphics.setFont(new Font("Arial", Font.BOLD, 20));
+        graphics.drawString("Energia CinÃ©tica da bola vermelha: "+k, 10, 500);
+        graphics.drawString("Energia CinÃ©tica da bola rosa : "+krosa, 10, 550);
+        g.drawImage(area, 200, 100, this);
+    }
+    public void inicializar() {
+        setTitle("ColisÃ£o");
+        setSize(1350, 750);
+        setResizable(false);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(null);
+        setVisible(true);
+        area = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_RGB);
+    }
+    public void run() {
+        inicializar();
+        while (true) {
+            limpar();
+            desenhar();
+            desenharrosa();
+            atualizar();
+            checarColisao();
+            k();
+            try {
+                Thread.sleep(1000/30);
+            } catch (Exception e) {
+                System.out.println("Thread interrompida!");
+            }
+        }
+    }    
+    public static void main(String[] args) {
+        Colisao colisao = new Colisao();
+        colisao.run();
+        System.out.println("Utilizando o git atravez do Netbeans");
+    }
